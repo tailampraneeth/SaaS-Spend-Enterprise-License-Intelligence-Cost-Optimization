@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaaS·Spend — License Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0c0d0f;
+    --bg2:      #131519;
+    --bg3:      #1a1d23;
+    --bg4:      #21252d;
+    --border:   #2a2f3a;
+    --border2:  #353c4a;
+    --gold:     #f0b429;
+    --gold2:    #e8a21a;
+    --gold-dim: rgba(240,180,41,0.12);
+    --gold-glow:rgba(240,180,41,0.06);
+    --red:      #e05252;
+    --red-dim:  rgba(224,82,82,0.12);
+    --green:    #3dd68c;
+    --green-dim:rgba(61,214,140,0.12);
+    --blue:     #60a5fa;
+    --blue-dim: rgba(96,165,250,0.1);
+    --text:     #e8e9ec;
+    --text2:    #9ca3af;
+    --text3:    #6b7280;
+    --font-head:'Syne', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID LAYOUT ── */
+  .app { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo-mark span { color: var(--gold); }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .nav { flex: 1; padding: 16px 0; }
+
+  .nav-section {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 8px 24px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    font-size: 12.5px;
+  }
+  .nav-item:hover { color: var(--text); background: var(--gold-glow); }
+  .nav-item.active {
+    color: var(--gold);
+    border-left-color: var(--gold);
+    background: var(--gold-dim);
+  }
+  .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; }
+    50% { opacity:0.4; }
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text3); }
+  .btn-gold {
+    background: var(--gold);
+    color: #0c0d0f;
+    font-weight: 600;
+  }
+  .btn-gold:hover { background: var(--gold2); }
+  .btn-red {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(224,82,82,0.3);
+  }
+  .btn-red:hover { background: rgba(224,82,82,0.2); }
+  .btn-green {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(61,214,140,0.3);
+  }
+  .btn-green:hover { background: rgba(61,214,140,0.2); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  /* ── PAGE SECTIONS ── */
+  .page { display: none; padding: 32px; animation: fadeIn 0.2s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  /* ── STAT CARDS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card::before {
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+    background: var(--gold);
+    opacity:0.6;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+  .stat-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .stat-value { font-family: var(--font-head); font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .stat-alert .stat-value { color: var(--red); }
+  .stat-alert::before { background: var(--red); }
+  .stat-ok .stat-value { color: var(--green); }
+  .stat-ok::before { background: var(--green); }
+
+  /* ── GRID 2-COL ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .card-body { padding: 20px; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(42,47,58,0.5);
+    font-size: 12.5px;
+    color: var(--text2);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gold-glow); color: var(--text); }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .badge-active  { background:var(--green-dim); color:var(--green); border:1px solid rgba(61,214,140,0.25); }
+  .badge-idle    { background:var(--gold-dim);  color:var(--gold);  border:1px solid rgba(240,180,41,0.25); }
+  .badge-revoked { background:var(--red-dim);   color:var(--red);   border:1px solid rgba(224,82,82,0.25); }
+  .badge-inactive{ background:rgba(107,114,128,0.15); color:var(--text3); border:1px solid rgba(107,114,128,0.25); }
+
+  /* ── PROGRESS BAR ── */
+  .prog-wrap { background: var(--bg4); border-radius: 4px; height: 5px; overflow:hidden; }
+  .prog-bar  { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .prog-ok   { background: var(--green); }
+  .prog-warn { background: var(--gold); }
+  .prog-over { background: var(--red); }
+
+  /* ── SEARCH / FILTER ── */
+  .toolbar { display:flex; gap:10px; margin-bottom:18px; align-items:center; }
+  .search {
+    flex:1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search::placeholder { color: var(--text3); }
+  .search:focus { border-color: var(--gold); }
+  select.search { cursor: pointer; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    width: 480px;
+    max-width: 95vw;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn { from{transform:scale(0.95);opacity:0} to{transform:scale(1);opacity:1} }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title { font-family:var(--font-head); font-size:15px; font-weight:700; }
+  .modal-close { background:none; border:none; color:var(--text3); cursor:pointer; font-size:18px; line-height:1; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 16px; }
+  label { display:block; font-size:11px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+  .form-input {
+    width: 100%;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input::placeholder { color: var(--text3); }
+
+  /* ── TOAST ── */
+  .toast-container { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:10px; }
+  .toast {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 12.5px;
+    min-width: 280px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 0.2s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  @keyframes toastIn { from{transform:translateX(20px);opacity:0} to{transform:none;opacity:1} }
+  .toast-ok  { border-left: 3px solid var(--green); }
+  .toast-err { border-left: 3px solid var(--red); }
+  .toast-warn{ border-left: 3px solid var(--gold); }
+
+  /* ── CHART BAR ── */
+  .chart-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .chart-label { width:120px; font-size:11px; color:var(--text2); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+  .chart-bar-wrap { flex:1; background:var(--bg4); border-radius:3px; height:18px; position:relative; overflow:hidden; }
+  .chart-bar-fill { height:100%; border-radius:3px; display:flex; align-items:center; padding:0 8px; font-size:10px; font-weight:500; color:#0c0d0f; white-space:nowrap; transition:width 0.8s ease; }
+  .chart-val { width:80px; text-align:right; font-size:11px; color:var(--text3); font-variant-numeric: tabular-nums; }
+
+  /* ── LOADING ── */
+  .loading { display:flex; align-items:center; justify-content:center; padding:40px; color:var(--text3); gap:10px; }
+  .spinner { width:18px; height:18px; border:2px solid var(--border2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; }
+  @keyframes spin { to{ transform:rotate(360deg); } }
+
+  /* ── MISC ── */
+  .mono { font-family:var(--font-mono); }
+  .gold { color:var(--gold); }
+  .green { color:var(--green); }
+  .red { color:var(--red); }
+  .dim { color:var(--text3); }
+  .section-title {
+    font-family:var(--font-head);
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .section-sub { color:var(--text3); font-size:12px; margin-bottom:24px; }
+  .empty { text-align:center; padding:40px; color:var(--text3); font-size:12px; }
+  .tag-cat {
+    display:inline-block;
+    padding:2px 7px;
+    border-radius:4px;
+    font-size:10px;
+    font-weight:500;
+    background:var(--blue-dim);
+    color:var(--blue);
+    border:1px solid rgba(96,165,250,0.2);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">SaaS<span>·</span>Spend</div>
+      <div class="logo-sub">License Intelligence</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="navigate('dashboard')">
+        <span class="nav-icon">◈</span> Dashboard
+      </div>
+      <div class="nav-section">Manage</div>
+      <div class="nav-item" onclick="navigate('departments')">
+        <span class="nav-icon">▦</span> Departments
+      </div>
+      <div class="nav-item" onclick="navigate('employees')">
+        <span class="nav-icon">◎</span> Employees
+      </div>
+      <div class="nav-item" onclick="navigate('subscriptions')">
+        <span class="nav-icon">▣</span> Subscriptions
+      </div>
+      <div class="nav-item" onclick="navigate('licenses')">
+        <span class="nav-icon">◆</span> Licenses
+      </div>
+      <div class="nav-section">Intelligence</div>
+      <div class="nav-item" onclick="navigate('vendors')">
+        <span class="nav-icon">◉</span> Vendors
+      </div>
+      <div class="nav-item" onclick="navigate('reports')">
+        <span class="nav-icon">▧</span> Reports
+        <span class="nav-badge" id="idle-badge">0</span>
+      </div>
+      <div class="nav-item" onclick="navigate('audit')">
+        <span class="nav-icon">≡</span> Audit Log
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>Postgres DB Connected<br>
+      <span style="margin-left:12px;font-size:10px">CSS 2212 · 2025-26</span>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="refreshPage()">↻ Refresh</button>
+        <button class="btn btn-gold" id="topbar-action" onclick="topbarAction()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: DASHBOARD -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page active" id="page-dashboard">
+      <div class="section-title">Cost Intelligence Overview</div>
+      <div class="section-sub">Real-time SaaS spend & license utilization across your organization</div>
+
+      <div class="stats-grid" id="dash-stats">
+        <div class="loading"><div class="spinner"></div>Loading...</div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Dept spend chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Top Departments by Spend</div>
+            <span class="dim" style="font-size:11px">annual cost</span>
+          </div>
+          <div class="card-body" id="dept-chart">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <!-- Category breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Spend by Category</div>
+            <span class="dim" style="font-size:11px">₹ annual</span>
+          </div>
+          <div class="card-body" id="cat-chart">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget utilization per dept -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Budget Utilization</div>
+          <span class="dim" style="font-size:11px">spend vs budget</span>
+        </div>
+        <div class="card-body" id="budget-util">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: DEPARTMENTS -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-departments">
+      <div class="section-title">Departments</div>
+      <div class="section-sub">Budget allocation and SaaS cost tracking per department</div>
+      <div class="toolbar">
+        <input class="search" type="text" placeholder="Search departments…" oninput="filterTable('dept-table', this.value)">
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="dept-table">
+            <thead><tr>
+              <th>Department</th><th>Location</th>
+              <th>Budget</th><th>Spend</th>
+              <th>Remaining</th><th>Utilization</th>
+            </tr></thead>
+            <tbody id="dept-tbody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Loading…</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: EMPLOYEES -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-employees">
+      <div class="section-title">Employees</div>
+      <div class="section-sub">Workforce directory with license assignment status</div>
+
+      <!-- Summary Stats -->
+      <div class="stats-grid" id="emp-stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-value" id="stat-total-employees">—</div>
+          <div class="stat-sub">All records in system</div>
+        </div>
+        <div class="stat-card stat-ok">
+          <div class="stat-label">Active Employees</div>
+          <div class="stat-value" id="stat-active-employees">—</div>
+          <div class="stat-sub">Currently active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Inactive / Transferred</div>
+          <div class="stat-value" id="stat-inactive-employees">—</div>
+          <div class="stat-sub">Deactivated or moved</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input class="search" type="text" placeholder="Search name, email, role…" oninput="filterTable('emp-table', this.value)">
+        <select class="search" style="max-width:180px" id="emp-dept-filter" onchange="loadEmployees()">
+          <option value="">All Departments</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="emp-table">
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Role</th>
+              <th>Department</th><th>Status</th><th>Licenses</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="emp-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: SUBSCRIPTIONS -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-subscriptions">
+      <div class="section-title">Subscriptions</div>
+      <div class="section-sub">Active SaaS contracts and seat allocations</div>
+
+      <!-- Summary Stats -->
+      <div class="stats-grid" id="sub-stats-grid">
+        <div class="stat-card stat-ok">
+          <div class="stat-label">Total Subscriptions</div>
+          <div class="stat-value" id="stat-total-subscriptions">—</div>
+          <div class="stat-sub">Active contracts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Annual Cost</div>
+          <div class="stat-value" id="stat-sub-total-cost" style="font-size:22px">—</div>
+          <div class="stat-sub">Across all active subs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Utilisation</div>
+          <div class="stat-value" id="stat-sub-avg-util">—</div>
+          <div class="stat-sub">Seats used vs purchased</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input class="search" type="text" placeholder="Search plan, vendor, dept…" oninput="filterTable('sub-table', this.value)">
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="sub-table">
+            <thead><tr>
+              <th>Plan</th><th>Vendor</th><th>Category</th>
+              <th>Department</th><th>Seats</th><th>Used</th>
+              <th>Annual Cost</th><th>Expires</th>
+            </tr></thead>
+            <tbody id="sub-tbody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: LICENSES -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-licenses">
+      <div class="section-title">License Allocations</div>
+      <div class="section-sub">Per-employee license assignments — assign or revoke via PL/SQL procedures</div>
+
+      <!-- Summary Stats -->
+      <div class="stats-grid" id="lic-stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Allocations</div>
+          <div class="stat-value" id="stat-total-licenses">—</div>
+          <div class="stat-sub">All license records</div>
+        </div>
+        <div class="stat-card stat-ok">
+          <div class="stat-label">Active Allocations</div>
+          <div class="stat-value" id="stat-active-licenses">—</div>
+          <div class="stat-sub">Currently assigned</div>
+        </div>
+        <div class="stat-card stat-alert">
+          <div class="stat-label">Revoked</div>
+          <div class="stat-value" id="stat-revoked-licenses">—</div>
+          <div class="stat-sub">Deactivated licenses</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input class="search" type="text" placeholder="Search employee, plan…" oninput="filterTable('lic-table', this.value)">
+        <select class="search" style="max-width:150px" onchange="filterLicStatus(this.value)">
+          <option value="">All Status</option>
+          <option value="ACTIVE">Active</option>
+          <option value="IDLE">Idle</option>
+          <option value="REVOKED">Revoked</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="lic-table">
+            <thead><tr>
+              <th>Employee</th><th>Department</th><th>Plan</th>
+              <th>Vendor</th><th>Last Used</th><th>Days Idle</th>
+              <th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="lic-tbody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: VENDORS -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-vendors">
+      <div class="section-title">Vendor Intelligence</div>
+      <div class="section-sub">Cost exposure by vendor — sourced from vendor_cost_view</div>
+      <div id="vendor-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: REPORTS -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-reports">
+      <div class="section-title">Intelligence Reports</div>
+      <div class="section-sub">Analytical views from the database — idle_license_view, dept_spend_view, vendor_cost_view</div>
+
+      <!-- Idle licenses -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">🔴 Idle Licenses — Cost Leakage Detection</div>
+          <span class="dim" style="font-size:11px">last_used &gt; 30 days or never used</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Employee</th><th>Department</th><th>Plan</th>
+              <th>Vendor</th><th>Last Used</th><th>Days Idle</th><th>Monthly Cost</th>
+            </tr></thead>
+            <tbody id="idle-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Vendor spend -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Vendor Cost Summary</div>
+        </div>
+        <div class="card-body" id="vendor-report-chart">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Dept spend -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Department Spend Report</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Department</th><th>Location</th><th>Budget</th>
+              <th>Spend</th><th>Utilization %</th><th>Remaining</th>
+            </tr></thead>
+            <tbody id="dept-report-tbody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- PAGE: AUDIT -->
+    <!-- ════════════════════════════════════ -->
+    <section class="page" id="page-audit">
+      <div class="section-title">Audit Log</div>
+      <div class="section-sub">Trigger-fired events from LICENSE_ALLOCATIONS, EMPLOYEES, SUBSCRIPTIONS</div>
+      <div class="toolbar">
+        <input class="search" type="text" placeholder="Filter by action, table…" oninput="filterTable('audit-table', this.value)">
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="audit-table">
+            <thead><tr>
+              <th>ID</th><th>Action</th><th>Table</th>
+              <th>Ref ID</th><th>Date</th><th>User</th><th>Description</th>
+            </tr></thead>
+            <tbody id="audit-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── MODALS ── -->
+
+<!-- Add Dept -->
+<div class="modal-overlay" id="modal-dept">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Department</div>
+      <button class="modal-close" onclick="closeModal('modal-dept')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Department Name</label>
+        <input class="form-input" id="f-dept-name" placeholder="e.g. Engineering">
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input class="form-input" id="f-dept-loc" placeholder="e.g. Bangalore">
+      </div>
+      <div class="form-group">
+        <label>Annual Budget (₹)</label>
+        <input class="form-input" id="f-dept-budget" type="number" placeholder="500000">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-dept')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitDept()">Add Department</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer Employee -->
+<div class="modal-overlay" id="modal-transfer">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Transfer Employee</div>
+      <button class="modal-close" onclick="closeModal('modal-transfer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+        Transferring <strong id="transfer-emp-name"></strong> will move them to the selected department,
+        set their status to <span style="color:var(--gold)">TRANSFERRED</span>, and auto-revoke all active licenses.
+      </p>
+      <div class="form-group">
+        <label>Select New Department</label>
+        <select class="form-input" id="transfer-dept-select">
+          <option value="">— Choose department —</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-transfer')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitTransfer()">Confirm Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Employee -->
+<div class="modal-overlay" id="modal-emp">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Employee</div>
+      <button class="modal-close" onclick="closeModal('modal-emp')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input class="form-input" id="f-emp-name" placeholder="e.g. Arjun Sharma">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input class="form-input" id="f-emp-email" placeholder="arjun@corp.in">
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <input class="form-input" id="f-emp-role" placeholder="e.g. SDE II">
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select class="form-input" id="f-emp-dept"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-emp')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitEmp()">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Subscription -->
+<div class="modal-overlay" id="modal-sub">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Subscription</div>
+      <button class="modal-close" onclick="closeModal('modal-sub')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Department</label>
+        <select class="form-input" id="f-sub-dept"></select>
+      </div>
+      <div class="form-group">
+        <label>Software Plan</label>
+        <select class="form-input" id="f-sub-plan"></select>
+      </div>
+      <div class="form-group">
+        <label>Seats to Purchase</label>
+        <input class="form-input" id="f-sub-seats" type="number" placeholder="10">
+      </div>
+      <div class="form-group">
+        <label>Start Date</label>
+        <input class="form-input" id="f-sub-start" type="date">
+      </div>
+      <div class="form-group">
+        <label>End Date</label>
+        <input class="form-input" id="f-sub-end" type="date">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-sub')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitSub()">Create Subscription</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign License -->
+<div class="modal-overlay" id="modal-assign">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Assign License</div>
+      <button class="modal-close" onclick="closeModal('modal-assign')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Employee ID</label>
+        <input class="form-input" id="f-assign-emp" type="number" placeholder="Enter emp_id">
+      </div>
+      <div class="form-group">
+        <label>Subscription ID</label>
+        <input class="form-input" id="f-assign-sub" type="number" placeholder="Enter sub_id">
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:4px">
+        Calls <span class="gold">saas_pkg.assign_license()</span> — checks seat availability &amp; employee status
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-assign')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitAssign()">Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let currentPage = 'dashboard';
+let deptList = [], subList = [], planList = [], empList = [], licList = [];
+
+// ── NAVIGATION ──────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelector(`.nav-item[onclick="navigate('${page}')"]`).classList.add('active');
+  currentPage = page;
+
+  const titles = {
+    dashboard:'Dashboard', departments:'Departments', employees:'Employees',
+    subscriptions:'Subscriptions', licenses:'Licenses',
+    vendors:'Vendors', reports:'Reports', audit:'Audit Log'
+  };
+  document.getElementById('page-title').textContent = titles[page];
+
+  const actions = {
+    departments: () => openModal('modal-dept'),
+    employees:   () => openModal('modal-emp'),
+    subscriptions:() => openModal('modal-sub'),
+    licenses:    () => openModal('modal-assign'),
+  };
+  document.getElementById('topbar-action').textContent =
+    ['departments','employees','subscriptions','licenses'].includes(page) ? '+ Add' : '↻ Refresh';
+  window._topbarFn = actions[page] || refreshPage;
+
+  loadPage(page);
+}
+
+function topbarAction() { window._topbarFn && window._topbarFn(); }
+function refreshPage() { loadPage(currentPage); }
+
+function loadPage(page) {
+  switch(page) {
+    case 'dashboard':    loadDashboard(); break;
+    case 'departments':  loadDepartments(); break;
+    case 'employees':    loadEmployees(); break;
+    case 'subscriptions':loadSubscriptions(); break;
+    case 'licenses':     loadLicenses(); break;
+    case 'vendors':      loadVendors(); break;
+    case 'reports':      loadReports(); break;
+    case 'audit':        loadAudit(); break;
+  }
+}
+
+// ── FETCH HELPER ────────────────────────────────────────────
+async function api(path, opts={}) {
+  try {
+    const r = await fetch(API + path, {
+      headers: {'Content-Type':'application/json'},
+      ...opts
+    });
+    return await r.json();
+  } catch(e) {
+    // Demo mode: return mock data when backend is unavailable
+    return getMockData(path);
+  }
+}
+
+// ── MOCK DATA for demo without Oracle ──────────────────────
+function getMockData(path) {
+  if (path === '/dashboard') return {
+    total_departments:8, active_employees:199, total_subscriptions:14,
+    total_annual_spend:4872000, idle_licenses:23, total_budget:2300000,
+    budget_utilization:68.4,
+    top_departments:[
+      {dept_name:'Engineering',budget:500000,current_spend:342000,pct:68.4},
+      {dept_name:'Marketing',budget:300000,current_spend:189000,pct:63.0},
+      {dept_name:'Data Science',budget:350000,current_spend:195000,pct:55.7},
+      {dept_name:'DevOps',budget:280000,current_spend:148000,pct:52.9},
+      {dept_name:'Product',budget:400000,current_spend:180000,pct:45.0},
+    ],
+    category_breakdown:[
+      {category:'CLOUD',spend:1820000},
+      {category:'PRODUCTIVITY',spend:1340000},
+      {category:'COMMUNICATION',spend:862000},
+      {category:'ANALYTICS',spend:495000},
+      {category:'DESIGN',spend:288000},
+      {category:'SECURITY',spend:168000},
+    ]
+  };
+  if (path === '/departments') return [
+    {dept_id:1,dept_name:'Engineering',location:'Bangalore',budget:500000,current_spend:342000,spend_pct:68.4,remaining_budget:158000},
+    {dept_id:2,dept_name:'Marketing',location:'Mumbai',budget:300000,current_spend:189000,spend_pct:63.0,remaining_budget:111000},
+    {dept_id:3,dept_name:'Finance',location:'Delhi',budget:200000,current_spend:18000,spend_pct:9.0,remaining_budget:182000},
+    {dept_id:4,dept_name:'HR',location:'Hyderabad',budget:150000,current_spend:19440,spend_pct:13.0,remaining_budget:130560},
+    {dept_id:5,dept_name:'Product',location:'Pune',budget:400000,current_spend:180000,spend_pct:45.0,remaining_budget:220000},
+    {dept_id:6,dept_name:'Data Science',location:'Chennai',budget:350000,current_spend:195000,spend_pct:55.7,remaining_budget:155000},
+    {dept_id:7,dept_name:'DevOps',location:'Bangalore',budget:280000,current_spend:148000,spend_pct:52.9,remaining_budget:132000},
+    {dept_id:8,dept_name:'Legal',location:'Delhi',budget:120000,current_spend:0,spend_pct:0,remaining_budget:120000},
+  ];
+  if (path === '/counts') return {
+    total_employees: 621, active_employees: 497,
+    total_subscriptions: 180, total_licenses: 2840, active_licenses: 2310
+  };
+  if (path === '/employees') return [
+    {emp_id:1,emp_name:'Arjun Sharma',email:'arjun.sharma@corp.in',role:'SDE II',status:'ACTIVE',dept_name:'Engineering',active_licenses:3},
+    {emp_id:2,emp_name:'Priya Nair',email:'priya.nair@corp.in',role:'SDE III',status:'ACTIVE',dept_name:'Engineering',active_licenses:2},
+    {emp_id:3,emp_name:'Rahul Mehta',email:'rahul.mehta@corp.in',role:'Tech Lead',status:'ACTIVE',dept_name:'Engineering',active_licenses:4},
+    {emp_id:8,emp_name:'Divya Pillai',email:'divya.pillai@corp.in',role:'Marketing Lead',status:'ACTIVE',dept_name:'Marketing',active_licenses:2},
+    {emp_id:9,emp_name:'Nikhil Bose',email:'nikhil.bose@corp.in',role:'Content Writer',status:'INACTIVE',dept_name:'Marketing',active_licenses:0},
+    {emp_id:13,emp_name:'Amit Joshi',email:'amit.joshi@corp.in',role:'Finance Analyst',status:'ACTIVE',dept_name:'Finance',active_licenses:1},
+    {emp_id:22,emp_name:'Faisal Ahmed',email:'faisal.ahmed@corp.in',role:'Data Scientist',status:'ACTIVE',dept_name:'Data Science',active_licenses:2},
+    {emp_id:25,emp_name:'Ganesh Rao',email:'ganesh.rao@corp.in',role:'DevOps Lead',status:'TRANSFERRED',dept_name:'DevOps',active_licenses:0},
+  ];
+  if (path === '/subscriptions') return [
+    {sub_id:7,plan_name:'AWS EC2 Enterprise',vendor_name:'AWS',category:'CLOUD',dept_name:'DevOps',seats_purchased:10,seats_used:8,annual_cost:80000,start_date:'2024-01-01',end_date:'2025-01-01'},
+    {sub_id:1,plan_name:'Microsoft 365 Business',vendor_name:'Microsoft',category:'PRODUCTIVITY',dept_name:'Engineering',seats_purchased:50,seats_used:43,annual_cost:60000,start_date:'2024-01-01',end_date:'2025-01-01'},
+    {sub_id:4,plan_name:'GitHub Enterprise',vendor_name:'GitHub',category:'PRODUCTIVITY',dept_name:'Engineering',seats_purchased:50,seats_used:48,annual_cost:99000,start_date:'2024-01-01',end_date:'2025-01-01'},
+    {sub_id:6,plan_name:'Slack Pro',vendor_name:'Slack',category:'COMMUNICATION',dept_name:'Marketing',seats_purchased:40,seats_used:32,annual_cost:34000,start_date:'2024-03-01',end_date:'2025-03-01'},
+    {sub_id:8,plan_name:'Datadog Pro',vendor_name:'Datadog',category:'ANALYTICS',dept_name:'Data Science',seats_purchased:15,seats_used:12,annual_cost:45000,start_date:'2024-01-01',end_date:'2025-01-01'},
+    {sub_id:11,plan_name:'Figma Professional',vendor_name:'Figma',category:'DESIGN',dept_name:'Product',seats_purchased:25,seats_used:18,annual_cost:36000,start_date:'2024-02-01',end_date:'2025-02-01'},
+  ];
+  if (path === '/licenses') return [
+    {alloc_id:9,emp_name:'Amit Joshi',email:'amit@corp.in',dept_name:'Finance',plan_name:'Jira Software Cloud',vendor_name:'Atlassian',price_per_seat:900,assigned_date:'2024-01-20',last_used_date:'2024-04-10',alloc_status:'ACTIVE',days_idle:45,emp_id:13,sub_id:3},
+    {alloc_id:11,emp_name:'Nikhil Bose',email:'nikhil@corp.in',dept_name:'Marketing',plan_name:'Google Workspace Biz',vendor_name:'Google',price_per_seat:1080,assigned_date:'2024-02-10',last_used_date:'2024-03-02',alloc_status:'ACTIVE',days_idle:90,emp_id:9,sub_id:9},
+    {alloc_id:1,emp_name:'Arjun Sharma',email:'arjun@corp.in',dept_name:'Engineering',plan_name:'Microsoft 365',vendor_name:'Microsoft',price_per_seat:1200,assigned_date:'2024-01-15',last_used_date:null,alloc_status:'ACTIVE',days_idle:null,emp_id:1,sub_id:1},
+    {alloc_id:3,emp_name:'Rahul Mehta',email:'rahul@corp.in',dept_name:'Engineering',plan_name:'GitHub Enterprise',vendor_name:'GitHub',price_per_seat:1980,assigned_date:'2024-01-15',last_used_date:'2024-05-22',alloc_status:'ACTIVE',days_idle:2,emp_id:3,sub_id:4},
+    {alloc_id:15,emp_name:'Ganesh Rao',email:'ganesh@corp.in',dept_name:'DevOps',plan_name:'AWS EC2 Enterprise',vendor_name:'AWS',price_per_seat:8000,assigned_date:'2024-01-01',last_used_date:'2024-01-24',alloc_status:'REVOKED',days_idle:120,emp_id:25,sub_id:7},
+  ];
+  if (path === '/vendors') return [
+    {vendor_id:4,vendor_name:'AWS',website:'https://aws.amazon.com',contact_email:'aws-sales@amazon.com',total_plans:1,active_subscriptions:2,total_annual_cost:160000},
+    {vendor_id:10,vendor_name:'GitHub',website:'https://github.com',contact_email:'sales@github.com',total_plans:1,active_subscriptions:1,total_annual_cost:99000},
+    {vendor_id:1,vendor_name:'Microsoft',website:'https://microsoft.com',contact_email:'sales@microsoft.com',total_plans:3,active_subscriptions:3,total_annual_cost:90000},
+    {vendor_id:8,vendor_name:'Datadog',website:'https://datadoghq.com',contact_email:'sales@datadoghq.com',total_plans:1,active_subscriptions:2,total_annual_cost:90000},
+    {vendor_id:7,vendor_name:'Figma',website:'https://figma.com',contact_email:'sales@figma.com',total_plans:1,active_subscriptions:2,total_annual_cost:72000},
+    {vendor_id:3,vendor_name:'Slack',website:'https://slack.com',contact_email:'sales@slack.com',total_plans:2,active_subscriptions:2,total_annual_cost:67000},
+    {vendor_id:5,vendor_name:'Atlassian',website:'https://atlassian.com',contact_email:'sales@atlassian.com',total_plans:2,active_subscriptions:2,total_annual_cost:48000},
+    {vendor_id:2,vendor_name:'Google',website:'https://google.com',contact_email:'workspace@google.com',total_plans:2,active_subscriptions:1,total_annual_cost:32400},
+  ];
+  if (path === '/reports/idle') return [
+    {alloc_id:11,emp_name:'Nikhil Bose',email:'nikhil@corp.in',dept_name:'Marketing',plan_name:'Google Workspace Biz',vendor_name:'Google',monthly_cost:1080,last_used_date:'2024-03-02',days_idle:90},
+    {alloc_id:9,emp_name:'Amit Joshi',email:'amit@corp.in',dept_name:'Finance',plan_name:'Jira Software Cloud',vendor_name:'Atlassian',monthly_cost:900,last_used_date:'2024-04-10',days_idle:45},
+    {alloc_id:12,emp_name:'Pooja Agarwal',email:'pooja@corp.in',dept_name:'Finance',plan_name:'Slack Pro',vendor_name:'Slack',monthly_cost:850,last_used_date:null,days_idle:null},
+    {alloc_id:13,emp_name:'Lakshmi Venkat',email:'lakshmi@corp.in',dept_name:'Marketing',plan_name:'Microsoft 365',vendor_name:'Microsoft',monthly_cost:1200,last_used_date:'2024-04-20',days_idle:35},
+  ];
+  if (path === '/reports/vendor-spend') return getMockData('/vendors');
+  if (path === '/reports/dept-spend') return getMockData('/departments');
+  if (path === '/audit') return [
+    {log_id:8,action_type:'BUDGET_ALERT',table_name:'SUBSCRIPTIONS',ref_id:null,action_date:'2024-05-24',changed_by:'SYSTEM',description:'Budget overflow blocked for dept_id=3 | Required: 80000 | Available: 30000'},
+    {log_id:7,action_type:'REVOKE',table_name:'EMPLOYEES',ref_id:25,action_date:'2024-05-23',changed_by:'HR_ADMIN',description:'All licenses auto-revoked: employee status changed to TRANSFERRED'},
+    {log_id:6,action_type:'ASSIGN',table_name:'LICENSE_ALLOCATIONS',ref_id:16,action_date:'2024-05-22',changed_by:'IT_ADMIN',description:'License assigned: emp_id=3 sub_id=4'},
+    {log_id:5,action_type:'UPDATE',table_name:'LICENSE_ALLOCATIONS',ref_id:9,action_date:'2024-05-20',changed_by:'SCHEDULER',description:'Status changed from ACTIVE to IDLE'},
+    {log_id:4,action_type:'REVOKE',table_name:'LICENSE_ALLOCATIONS',ref_id:15,action_date:'2024-04-01',changed_by:'IT_ADMIN',description:'License revoked: emp_id=25 sub_id=7'},
+  ];
+  return [];
+}
+
+// ── FORMAT HELPERS ──────────────────────────────────────────
+const fmt = n => n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN');
+const fmtN = n => n == null ? '—' : Number(n).toLocaleString('en-IN');
+
+function badgeStatus(s) {
+  const cls = {ACTIVE:'badge-active',IDLE:'badge-idle',REVOKED:'badge-revoked',INACTIVE:'badge-inactive',TRANSFERRED:'badge-inactive'};
+  return `<span class="badge ${cls[s]||'badge-inactive'}">${s||'—'}</span>`;
+}
+
+function progBar(pct) {
+  const cls = pct > 85 ? 'prog-over' : pct > 65 ? 'prog-warn' : 'prog-ok';
+  return `<div class="prog-wrap"><div class="prog-bar ${cls}" style="width:${Math.min(pct,100)}%"></div></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">${pct}%</div>`;
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+async function loadDashboard() {
+  const d = await api('/dashboard');
+  document.getElementById('idle-badge').textContent = d.idle_licenses || 0;
+
+  // Stats
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Annual SaaS Spend</div>
+      <div class="stat-value">${fmt(d.total_annual_spend)}</div>
+      <div class="stat-sub">${d.total_subscriptions} active subscriptions</div>
+    </div>
+    <div class="stat-card ${d.idle_licenses > 10 ? 'stat-alert' : ''}">
+      <div class="stat-label">Idle Licenses</div>
+      <div class="stat-value">${d.idle_licenses}</div>
+      <div class="stat-sub">licenses unused &gt; 30 days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Employees</div>
+      <div class="stat-value">${fmtN(d.active_employees)}</div>
+      <div class="stat-sub">across ${d.total_departments} departments</div>
+    </div>
+    <div class="stat-card ${d.budget_utilization > 80 ? 'stat-alert' : 'stat-ok'}">
+      <div class="stat-label">Budget Utilization</div>
+      <div class="stat-value">${d.budget_utilization}%</div>
+      <div class="stat-sub">of ${fmt(d.total_budget)} total budget</div>
+    </div>
+  `;
+
+  // Dept chart
+  const max = Math.max(...(d.top_departments||[]).map(r => r.current_spend||0), 1);
+  document.getElementById('dept-chart').innerHTML = (d.top_departments||[]).map(r => {
+    const pct = Math.round((r.current_spend/max)*100);
+    return `<div class="chart-row">
+      <div class="chart-label">${r.dept_name}</div>
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-fill prog-warn" style="width:${pct}%">${pct > 30 ? fmt(r.current_spend) : ''}</div>
+      </div>
+      <div class="chart-val">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Category chart
+  const maxC = Math.max(...(d.category_breakdown||[]).map(r => r.spend||0), 1);
+  const catColors = ['prog-over','prog-warn','prog-ok','prog-ok','prog-warn','prog-ok'];
+  document.getElementById('cat-chart').innerHTML = (d.category_breakdown||[]).map((r,i) => {
+    const pct = Math.round((r.spend/maxC)*100);
+    return `<div class="chart-row">
+      <div class="chart-label">${r.category}</div>
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-fill ${catColors[i%6]}" style="width:${pct}%">${pct > 20 ? fmt(r.spend) : ''}</div>
+      </div>
+      <div class="chart-val">${fmt(r.spend)}</div>
+    </div>`;
+  }).join('');
+
+  // Budget utilization table
+  const depts = await api('/departments');
+  deptList = depts;
+  document.getElementById('budget-util').innerHTML = depts.slice(0,8).map(d => `
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:12px;color:var(--text2)">${d.dept_name}</span>
+        <span style="font-size:11px;color:var(--text3)">${fmt(d.current_spend)} / ${fmt(d.budget)}</span>
+      </div>
+      ${progBar(d.spend_pct||0)}
+    </div>
+  `).join('');
+}
+
+// ── DEPARTMENTS ─────────────────────────────────────────────
+async function loadDepartments() {
+  const data = await api('/departments');
+  deptList = data;
+  document.getElementById('dept-tbody').innerHTML = data.map(d => `
+    <tr>
+      <td><strong style="color:var(--text)">${d.dept_name}</strong></td>
+      <td class="dim">${d.location}</td>
+      <td class="mono">${fmt(d.budget)}</td>
+      <td class="mono gold">${fmt(d.current_spend)}</td>
+      <td class="mono ${d.remaining_budget < 50000 ? 'red' : 'green'}">${fmt(d.remaining_budget)}</td>
+      <td style="min-width:140px">${progBar(d.spend_pct||0)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" class="empty">No departments found</td></tr>';
+  populateDeptDropdowns();
+}
+
+// ── EMPLOYEES ───────────────────────────────────────────────
+async function loadEmployees() {
+  const filter = document.getElementById('emp-dept-filter')?.value;
+  const url = filter ? `/employees?dept_id=${filter}` : '/employees';
+  const [data, counts] = await Promise.all([api(url), api('/counts')]);
+  empList = data;
+
+  // Populate summary stats from the dedicated /counts endpoint (always full totals)
+  if (counts && !counts.error) {
+    const elTotal    = document.getElementById('stat-total-employees');
+    const elActive   = document.getElementById('stat-active-employees');
+    const elInactive = document.getElementById('stat-inactive-employees');
+    if (elTotal)    elTotal.textContent    = counts.total_employees.toLocaleString();
+    if (elActive)   elActive.textContent   = counts.active_employees.toLocaleString();
+    if (elInactive) elInactive.textContent = (counts.total_employees - counts.active_employees).toLocaleString();
+  }
+
+  document.getElementById('emp-tbody').innerHTML = data.map(e => `
+    <tr>
+      <td><strong style="color:var(--text)">${e.emp_name}</strong><br><span style="font-size:10px;color:var(--text3)">#${e.emp_id}</span></td>
+      <td class="dim" style="font-size:11px">${e.email}</td>
+      <td class="dim">${e.role}</td>
+      <td>${e.dept_name}</td>
+      <td>${badgeStatus(e.status)}</td>
+      <td><span class="gold mono">${e.active_licenses}</span></td>
+      <td>
+        ${e.status === 'ACTIVE' ?
+          `<button class="btn btn-red btn-sm" onclick="updateEmpStatus(${e.emp_id},'INACTIVE')">Deactivate</button>
+           <button class="btn btn-ghost btn-sm" onclick="openTransferModal(${e.emp_id},'${e.emp_name}')" style="margin-left:4px">Transfer</button>` :
+          `<span class="dim" style="font-size:11px">${e.status}</span>`
+        }
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" class="empty">No employees found</td></tr>';
+}
+
+// ── TRANSFER EMPLOYEE ────────────────────────────────────────
+let transferEmpId = null;
+
+function openTransferModal(empId, empName) {
+  transferEmpId = empId;
+  document.getElementById('transfer-emp-name').textContent = empName;
+
+  // Populate department dropdown from already-loaded deptList
+  const select = document.getElementById('transfer-dept-select');
+  select.innerHTML = '<option value="">— Choose department —</option>' +
+    deptList.map(d => `<option value="${d.dept_id}">${d.dept_name}</option>`).join('');
+
+  openModal('modal-transfer');
+}
+
+async function submitTransfer() {
+  const newDeptId = document.getElementById('transfer-dept-select').value;
+  if (!newDeptId) { toast('Please select a department', 'err'); return; }
+
+  const r = await api(`/employees/${transferEmpId}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status: 'TRANSFERRED', new_dept_id: parseInt(newDeptId) })
+  });
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  if (r.status === 'success') { closeModal('modal-transfer'); loadEmployees(); }
+}
+
+// Kept for INACTIVE (Deactivate button still uses this)
+async function updateEmpStatus(empId, status) {
+  if (!confirm(`Set employee #${empId} to ${status}? This will trigger auto-revocation of licenses.`)) return;
+  const r = await api(`/employees/${empId}/status`, {method:'PUT', body:JSON.stringify({status})});
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  loadEmployees();
+}
+
+// ── SUBSCRIPTIONS ───────────────────────────────────────────
+async function loadSubscriptions() {
+  const data = await api('/subscriptions');
+  subList = data;
+
+  // Populate summary stats
+  const totalSubs = data.length;
+  const totalCost = data.reduce((s, x) => s + (x.annual_cost || 0), 0);
+  const avgUtil = totalSubs
+    ? Math.round(data.reduce((s, x) => s + (x.utilization_pct || 0), 0) / totalSubs)
+    : 0;
+  const elTotalSubs = document.getElementById('stat-total-subscriptions');
+  const elTotalCost = document.getElementById('stat-sub-total-cost');
+  const elAvgUtil  = document.getElementById('stat-sub-avg-util');
+  if (elTotalSubs) elTotalSubs.textContent = totalSubs.toLocaleString();
+  if (elTotalCost) elTotalCost.textContent = fmt(totalCost);
+  if (elAvgUtil)   elAvgUtil.textContent   = avgUtil + '%';
+
+  document.getElementById('sub-tbody').innerHTML = data.map(s => {
+    const util = s.seats_purchased ? Math.round((s.seats_used/s.seats_purchased)*100) : 0;
+    return `<tr>
+      <td>
+        <strong style="color:var(--text)">${s.plan_name}</strong>
+        <br><span style="font-size:10px;color:var(--text3)">Sub #${s.sub_id}</span>
+      </td>
+      <td class="dim">${s.vendor_name}</td>
+      <td><span class="tag-cat">${s.category}</span></td>
+      <td>${s.dept_name}</td>
+      <td class="mono">${s.seats_purchased}</td>
+      <td>
+        <span class="mono ${util > 90 ? 'red' : 'green'}">${s.seats_used}</span>
+        <span class="dim" style="font-size:10px"> / ${s.seats_purchased}</span>
+      </td>
+      <td class="mono gold">${fmt(s.annual_cost)}</td>
+      <td class="dim" style="font-size:11px">${s.end_date||'—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" class="empty">No subscriptions found</td></tr>';
+}
+
+// ── LICENSES ────────────────────────────────────────────────
+async function loadLicenses() {
+  const [data, counts] = await Promise.all([api('/licenses'), api('/counts')]);
+  licList = data;
+
+  // Populate summary stats from the dedicated /counts endpoint
+  if (counts && !counts.error) {
+    const elTotal   = document.getElementById('stat-total-licenses');
+    const elActive  = document.getElementById('stat-active-licenses');
+    const elRevoked = document.getElementById('stat-revoked-licenses');
+    if (elTotal)   elTotal.textContent   = counts.total_licenses.toLocaleString();
+    if (elActive)  elActive.textContent  = counts.active_licenses.toLocaleString();
+    if (elRevoked) elRevoked.textContent = (counts.total_licenses - counts.active_licenses).toLocaleString();
+  }
+
+  renderLicenses(data);
+}
+
+function renderLicenses(data) {
+  document.getElementById('lic-tbody').innerHTML = data.map(l => `
+    <tr>
+      <td><strong style="color:var(--text)">${l.emp_name}</strong><br>
+          <span style="font-size:10px;color:var(--text3)">${l.email}</span></td>
+      <td class="dim">${l.dept_name}</td>
+      <td>${l.plan_name}</td>
+      <td class="dim">${l.vendor_name}</td>
+      <td class="dim" style="font-size:11px">${l.last_used_date || '<span class="red">Never</span>'}</td>
+      <td class="${l.days_idle > 30 ? 'red' : 'dim'} mono">${l.days_idle != null ? l.days_idle + 'd' : '—'}</td>
+      <td>${badgeStatus(l.alloc_status)}</td>
+      <td>
+        ${l.alloc_status === 'ACTIVE' ?
+          `<button class="btn btn-red btn-sm" onclick="revokeL(${l.emp_id},${l.sub_id})">Revoke</button>` :
+          '<span class="dim" style="font-size:11px">—</span>'
+        }
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="8" class="empty">No license allocations found</td></tr>';
+}
+
+function filterLicStatus(status) {
+  const filtered = status ? licList.filter(l => l.alloc_status === status) : licList;
+  renderLicenses(filtered);
+}
+
+async function revokeL(empId, subId) {
+  if (!confirm('Revoke this license? Calls saas_pkg.revoke_license().')) return;
+  const r = await api('/licenses/revoke', {method:'POST', body:JSON.stringify({emp_id:empId,sub_id:subId})});
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  loadLicenses();
+}
+
+// ── VENDORS ─────────────────────────────────────────────────
+async function loadVendors() {
+  const data = await api('/vendors');
+  const maxCost = Math.max(...data.map(v => v.total_annual_cost||0), 1);
+  document.getElementById('vendor-cards').innerHTML = data.map(v => {
+    const pct = Math.round(((v.total_annual_cost||0)/maxCost)*100);
+    return `<div class="card" style="padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div>
+          <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text)">${v.vendor_name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${v.contact_email||'—'}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="gold" style="font-family:var(--font-head);font-size:18px;font-weight:700">${fmt(v.total_annual_cost)}</div>
+          <div style="font-size:10px;color:var(--text3)">annual</div>
+        </div>
+      </div>
+      <div class="prog-wrap" style="margin-bottom:12px">
+        <div class="prog-bar prog-warn" style="width:${pct}%"></div>
+      </div>
+      <div style="display:flex;gap:20px">
+        <div>
+          <div style="font-size:10px;color:var(--text3)">Plans</div>
+          <div class="mono" style="color:var(--text)">${v.total_plans||0}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3)">Subscriptions</div>
+          <div class="mono" style="color:var(--text)">${v.active_subscriptions||0}</div>
+        </div>
+        <div style="margin-left:auto">
+          <a href="${v.website||'#'}" target="_blank" style="font-size:11px;color:var(--gold);text-decoration:none">↗ Visit</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REPORTS ─────────────────────────────────────────────────
+async function loadReports() {
+  // Idle licenses
+  const idle = await api('/reports/idle');
+  document.getElementById('idle-badge').textContent = idle.length;
+  document.getElementById('idle-tbody').innerHTML = idle.map(l => `
+    <tr>
+      <td><strong style="color:var(--text)">${l.emp_name}</strong></td>
+      <td>${l.dept_name}</td>
+      <td>${l.plan_name}</td>
+      <td class="dim">${l.vendor_name}</td>
+      <td class="dim" style="font-size:11px">${l.last_used_date||'<span class="red">Never</span>'}</td>
+      <td class="red mono">${l.days_idle != null ? Math.round(l.days_idle)+'d' : '—'}</td>
+      <td class="mono gold">${fmt(l.monthly_cost)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" class="empty">No idle licenses — 🎉</td></tr>';
+
+  // Vendor spend chart
+  const vendors = await api('/reports/vendor-spend');
+  const maxV = Math.max(...vendors.map(v => v.total_annual_cost||0), 1);
+  document.getElementById('vendor-report-chart').innerHTML = vendors.map(v => {
+    const pct = Math.round(((v.total_annual_cost||0)/maxV)*100);
+    return `<div class="chart-row">
+      <div class="chart-label">${v.vendor_name}</div>
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-fill prog-warn" style="width:${pct}%">${pct > 15 ? fmt(v.total_annual_cost) : ''}</div>
+      </div>
+      <div class="chart-val">${fmt(v.total_annual_cost)}</div>
+    </div>`;
+  }).join('');
+
+  // Dept spend table
+  const depts = await api('/reports/dept-spend');
+  document.getElementById('dept-report-tbody').innerHTML = depts.map(d => `
+    <tr>
+      <td><strong style="color:var(--text)">${d.dept_name}</strong></td>
+      <td class="dim">${d.location}</td>
+      <td class="mono">${fmt(d.budget)}</td>
+      <td class="mono gold">${fmt(d.current_spend)}</td>
+      <td>${progBar(d.spend_pct||0)}</td>
+      <td class="mono ${d.remaining_budget < 50000 ? 'red' : 'green'}">${fmt(d.remaining_budget)}</td>
+    </tr>
+  `).join('');
+}
+
+// ── AUDIT ───────────────────────────────────────────────────
+async function loadAudit() {
+  const data = await api('/audit');
+  const actionColors = {
+    ASSIGN:'badge-active', REVOKE:'badge-revoked', UPDATE:'badge-idle',
+    BUDGET_ALERT:'badge-revoked', INSERT:'badge-active', DELETE:'badge-revoked'
+  };
+  document.getElementById('audit-tbody').innerHTML = data.map(a => `
+    <tr>
+      <td class="mono dim">#${a.log_id}</td>
+      <td><span class="badge ${actionColors[a.action_type]||'badge-inactive'}">${a.action_type}</span></td>
+      <td class="dim" style="font-size:11px">${a.table_name}</td>
+      <td class="mono dim">${a.ref_id||'—'}</td>
+      <td class="dim" style="font-size:11px">${a.action_date}</td>
+      <td class="dim">${a.changed_by}</td>
+      <td style="font-size:11px;color:var(--text3);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+          title="${a.description||''}">${a.description||'—'}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" class="empty">No audit records</td></tr>';
+}
+
+// ── MODALS ──────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function populateDeptDropdowns() {
+  const depts = deptList.length ? deptList : await api('/departments');
+  const opts = depts.map(d => `<option value="${d.dept_id}">${d.dept_name}</option>`).join('');
+  ['f-emp-dept','f-sub-dept','emp-dept-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const prefix = id === 'emp-dept-filter' ? '<option value="">All Departments</option>' : '';
+      el.innerHTML = prefix + opts;
+    }
+  });
+  const plans = planList.length ? planList : await api('/plans');
+  planList = plans;
+  const popts = plans.map(p => `<option value="${p.plan_id}">${p.plan_name} — ${p.vendor_name} (${fmt(p.price_per_seat)}/seat)</option>`).join('');
+  const fp = document.getElementById('f-sub-plan');
+  if (fp) fp.innerHTML = popts;
+}
+
+async function submitDept() {
+  const body = {
+    dept_name: document.getElementById('f-dept-name').value,
+    location:  document.getElementById('f-dept-loc').value,
+    budget:    +document.getElementById('f-dept-budget').value,
+  };
+  if (!body.dept_name || !body.location || !body.budget) return toast('Fill all fields', 'warn');
+  const r = await api('/departments', {method:'POST', body:JSON.stringify(body)});
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  if (r.status === 'success') { closeModal('modal-dept'); loadDepartments(); }
+}
+
+async function submitEmp() {
+  const body = {
+    emp_name: document.getElementById('f-emp-name').value,
+    email:    document.getElementById('f-emp-email').value,
+    role:     document.getElementById('f-emp-role').value,
+    dept_id:  +document.getElementById('f-emp-dept').value,
+  };
+  if (!body.emp_name || !body.email || !body.role) return toast('Fill all fields', 'warn');
+  const r = await api('/employees', {method:'POST', body:JSON.stringify(body)});
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  if (r.status === 'success') { closeModal('modal-emp'); loadEmployees(); }
+}
+
+async function submitSub() {
+  const body = {
+    dept_id:       +document.getElementById('f-sub-dept').value,
+    plan_id:       +document.getElementById('f-sub-plan').value,
+    seats_purchased:+document.getElementById('f-sub-seats').value,
+    start_date:     document.getElementById('f-sub-start').value,
+    end_date:       document.getElementById('f-sub-end').value,
+  };
+  if (!body.seats_purchased || !body.start_date || !body.end_date) return toast('Fill all fields', 'warn');
+  const r = await api('/subscriptions', {method:'POST', body:JSON.stringify(body)});
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  if (r.status === 'success') { closeModal('modal-sub'); loadSubscriptions(); }
+}
+
+async function submitAssign() {
+  const body = {
+    emp_id: +document.getElementById('f-assign-emp').value,
+    sub_id: +document.getElementById('f-assign-sub').value,
+  };
+  if (!body.emp_id || !body.sub_id) return toast('Enter both IDs', 'warn');
+  const r = await api('/licenses/assign', {method:'POST', body:JSON.stringify(body)});
+  toast(r.message, r.status === 'success' ? 'ok' : 'err');
+  if (r.status === 'success') { closeModal('modal-assign'); loadLicenses(); }
+}
+
+// ── TABLE SEARCH ────────────────────────────────────────────
+function filterTable(tableId, q) {
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  const lq = q.toLowerCase();
+  rows.forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(lq) ? '' : 'none';
+  });
+}
+
+// ── TOAST ───────────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const icons = {ok:'✓', err:'✕', warn:'⚠'};
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span>${icons[type]||'·'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ── CLOSE MODALS ON BACKDROP ────────────────────────────────
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ── INIT ────────────────────────────────────────────────────
+(async () => {
+  await loadDashboard();
+  await populateDeptDropdowns();
+})();
+</script>
+</body>
+</html>
