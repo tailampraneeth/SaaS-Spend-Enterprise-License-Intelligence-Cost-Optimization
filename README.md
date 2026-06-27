@@ -210,4 +210,4 @@ Open `frontend/index.html` directly in a browser. The page connects to the Flask
 
 ## License
 
-MIT
+Praneeth
